@@ -8,7 +8,6 @@ import (
 
 // Minio packs repositories
 type Minio struct {
-	Client  *minio.Client
 	Buckets Repositories
 }
 
@@ -50,20 +49,22 @@ func New() (*Minio, error) {
 	detour := newDetourClient(client)
 
 	return &Minio{
-		Client:  client,
 		Buckets: Repositories{detour},
 	}, nil
 }
 
 // UpdateConfig can change connection infomation
-func (m *Minio) UpdateConfig(url, pk, sk string) error {
+func (m *Minio) UpdateConfig(url, pk, sk string) *Minio {
 	client, err := minio.New(url, &minio.Options{
 		Creds:  credentials.NewStaticV4(pk, sk, ""),
 		Secure: false,
 	})
 	if err != nil {
-		return err
+		return nil
 	}
-	m.Client = client
-	return nil
+
+	detour := newDetourClient(client)
+	m.Buckets = Repositories{detour}
+
+	return m
 }
