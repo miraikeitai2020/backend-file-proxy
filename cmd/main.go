@@ -2,6 +2,11 @@ package main
 
 import (
 	"net/http"
+	"os"
+
+	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/service/log"
+
+	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/dao/minio"
 
 	"github.com/gin-gonic/gin"
 	"github.com/miraikeitai2020/backend-file-proxy/pkg/controller"
@@ -22,8 +27,15 @@ func router(ctrl controller.Controllers) *gin.Engine {
 }
 
 func main() {
-	ctrl := controller.New()
-	if err := router(ctrl).Run(); err != nil {
+	client, err := minio.New()
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
 
+	ctrl := controller.New(client)
+	if err := router(ctrl).Run(); err != nil {
+		log.Fatal(err)
+		os.Exit(1)
 	}
 }
