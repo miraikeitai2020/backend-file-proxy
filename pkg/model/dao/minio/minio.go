@@ -8,6 +8,7 @@ import (
 
 // Minio packs repositories
 type Minio struct {
+	Config  minioConfig
 	Buckets Repositories
 }
 
@@ -21,11 +22,10 @@ type repository interface {
 	Add(string) error
 }
 
-type connectionConfig struct {
-	URL       string
-	PublicKey string
-	SecretKey string
-	TLS       bool
+type minioConfig struct {
+	URL       string `json:"endpoint"`
+	PublicKey string `json:"publicKey"`
+	SecretKey string `json:"secretKey"`
 }
 
 // New returns Clients structer
@@ -49,6 +49,7 @@ func New() (*Minio, error) {
 	detour := newDetourClient(client)
 
 	return &Minio{
+		Config:  minioConfig{url, pk, sk},
 		Buckets: Repositories{detour},
 	}, nil
 }
@@ -65,6 +66,7 @@ func (m *Minio) UpdateConfig(url, pk, sk string) *Minio {
 
 	detour := newDetourClient(client)
 	m.Buckets = Repositories{detour}
+	m.Config = minioConfig{url, pk, sk}
 
 	return m
 }
