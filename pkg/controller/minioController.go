@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/dao/minio"
 	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/dto"
 	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/service/log"
+	"github.com/miraikeitai2020/backend-file-proxy/pkg/view"
 )
 
 // FileController manages the file resource
@@ -66,10 +68,30 @@ func (c *fileController) ConfigUpdateHandler(cxt *gin.Context) {
 	var request dto.ConfigUpdateRequest
 	if err := cxt.BindJSON(&request); err != nil {
 		log.Error(err)
+		appErr := view.NewAppError(dto.ERROR_CODE_INTERNAL, err)
+		cxt.JSON(http.StatusOK, view.NewConfigUpdateResponse(nil, &appErr))
+		return
+	}
+
+	// check response value
+	if request.URL == "" {
+		appErr := view.NewAppError(dto.ERROR_CODE_CLIENT, errors.New("`url` parameter value is empty"))
+		cxt.JSON(http.StatusOK, view.NewConfigUpdateResponse(nil, &appErr))
+		return
+	}
+	if request.PublicKey == "" {
+		appErr := view.NewAppError(dto.ERROR_CODE_CLIENT, errors.New("`publicKey` parameter value is empty"))
+		cxt.JSON(http.StatusOK, view.NewConfigUpdateResponse(nil, &appErr))
+		return
+	}
+	if request.SecretKey == "" {
+		appErr := view.NewAppError(dto.ERROR_CODE_CLIENT, errors.New("`secretKey` parameter value is empty"))
+		cxt.JSON(http.StatusOK, view.NewConfigUpdateResponse(nil, &appErr))
 		return
 	}
 
 	c.Minio.UpdateConfig(request.URL, request.PublicKey, request.SecretKey)
 
-	cxt.JSON(http.StatusOK, gin.H{"url": request.URL})
+	info := view.NewMinioAccessInfo(request.URL, request.PublicKey, request.SecretKey)
+	cxt.JSON(http.StatusOK, view.NewConfigUpdateResponse(&info, nil))
 }
