@@ -11,8 +11,8 @@ type minioConnConfig struct {
 	SecretKey string `envconfig:"MINIO_SECRET_KEY" default:"Mf67pN3LsJRabd8j97pk7nxGLq7B3mD8"`
 }
 
-// MinioConnInfo provides minio connection config
-func MinioConnInfo() (string, string, string, error) {
+// MinioConnParams provides minio connection config
+func MinioConnParams() (string, string, string, error) {
 	var c minioConnConfig
 	if err := envconfig.Process("", &c); err != nil {
 		return nullStr, nullStr, nullStr, err
