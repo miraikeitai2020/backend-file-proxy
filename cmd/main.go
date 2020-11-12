@@ -19,7 +19,7 @@ func router(ctrl controller.Controllers) *gin.Engine {
 		cxt.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
 	// controlle client config resource
-	router.POST("/minio/config/update", ctrl.Minio().ConfigUpdateHandler)
+	router.PUT("/minio/config/update", ctrl.Minio().ConfigUpdateHandler)
 	// controlle file resource
 	router.GET("/image/read/:id", ctrl.Minio().ReadImageHandler)
 	router.POST("/image/create", ctrl.Minio().CreateImageHandler)
