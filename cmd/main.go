@@ -21,8 +21,8 @@ func router(ctrl controller.Controllers) *gin.Engine {
 	// controlle client config resource
 	router.POST("/minio/config/update", ctrl.Minio().ConfigUpdateHandler)
 	// controlle file resource
-	router.GET("/image/read/:id", ctrl.File().ReadImageHandler)
-	router.POST("/image/create", ctrl.File().CreateImageHandler)
+	router.GET("/image/read/:id", ctrl.Minio().ReadImageHandler)
+	router.POST("/image/create", ctrl.Minio().CreateImageHandler)
 	return router
 }
 
