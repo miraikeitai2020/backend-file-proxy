@@ -1,0 +1,6 @@
+package dto
+
+const (
+	ERROR_CODE_INTERNAL = 500000
+	ERROR_CODE_CLIENT   = 100000
+)
