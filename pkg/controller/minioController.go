@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/dao/minio"
 	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/dto"
+	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/service/decode"
 	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/service/log"
 	"github.com/miraikeitai2020/backend-file-proxy/pkg/view"
 )
@@ -62,6 +63,52 @@ func (c *fileController) ReadImageHandler(cxt *gin.Context) {
 }
 
 func (c *fileController) CreateImageHandler(cxt *gin.Context) {
+	var request dto.CreateImageRequest
+
+	if err := cxt.BindJSON(&request); err != nil {
+		log.Error(err)
+		appErr := view.NewAppError(dto.ERROR_CODE_INTERNAL, err)
+		cxt.JSON(http.StatusOK, gin.H{"error": appErr})
+		return
+	}
+
+	fileName := request.ID + ".jpg"
+
+	// check request parameter
+	if request.ID == "" {
+		appErr := view.NewAppError(dto.ERROR_CODE_CLIENT, errors.New("`id` parameter value is empty"))
+		cxt.JSON(http.StatusOK, gin.H{"error": appErr})
+		return
+	}
+	if request.Source == "" {
+		appErr := view.NewAppError(dto.ERROR_CODE_CLIENT, errors.New("`source` parameter value is empty"))
+		cxt.JSON(http.StatusOK, gin.H{"error": appErr})
+		return
+	}
+
+	if err := decode.Image(fileName, request.Source); err != nil {
+		log.Error(err)
+		appErr := view.NewAppError(dto.ERROR_CODE_INTERNAL, err)
+		cxt.JSON(http.StatusOK, gin.H{"error": appErr})
+		return
+	}
+
+	size, err := c.Minio.Buckets.Detour.Add(fileName)
+	if err != nil {
+		log.Error(err)
+		appErr := view.NewAppError(dto.ERROR_CODE_INTERNAL, err)
+		cxt.JSON(http.StatusOK, gin.H{"error": appErr})
+		return
+	}
+
+	info := view.NewObjectInfo(request.ID, size)
+	cxt.JSON(http.StatusOK, gin.H{"objectInfo": info})
+	/*
+		if err := os.Remove(fileName); err != nil {
+			log.Error(err)
+			return
+		}
+	*/
 }
 
 func (c *fileController) ConfigUpdateHandler(cxt *gin.Context) {
