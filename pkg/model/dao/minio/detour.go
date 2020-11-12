@@ -33,6 +33,12 @@ func (r *detourRepository) Get(fileName string) (*minio.Object, int64, error) {
 	return object, stat.Size, nil
 }
 
-func (r *detourRepository) Add(fileName string) error {
-	return nil
+func (r *detourRepository) Add(fileName string) (int64, error) {
+	contentType := "application/jpg"
+	info, err := r.Client.FPutObject(context.Background(), r.Bucket, fileName, fileName, minio.PutObjectOptions{ContentType: contentType})
+	if err != nil {
+		return -1, err
+	}
+
+	return info.Size, nil
 }

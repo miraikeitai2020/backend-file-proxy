@@ -19,7 +19,7 @@ type Repositories struct {
 
 type repository interface {
 	Get(string) (*minio.Object, int64, error)
-	Add(string) error
+	Add(string) (int64, error)
 }
 
 type minioConfig struct {
