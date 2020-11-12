@@ -11,6 +11,11 @@ type AccessInfo struct {
 	SecretKey string `json:"secretKey"`
 }
 
+type ObjectInfo struct {
+	ID   string `json:"id"`
+	Size int64  `json:"size"`
+}
+
 type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`

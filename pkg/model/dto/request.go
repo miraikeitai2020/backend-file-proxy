@@ -5,3 +5,8 @@ type ConfigUpdateRequest struct {
 	PublicKey string `json:"publicKey"`
 	SecretKey string `json:"secretKey"`
 }
+
+type CreateImageRequest struct {
+	ID     string `json:"id"`
+	Source string `json:"source"`
+}
