@@ -114,21 +114,6 @@ func (c *minioController) CreateDetourImageHandler(cxt *gin.Context) {
 
 func (c *minioController) ConfigUpdateHandler(cxt *gin.Context) {
 	var request dto.ConfigUpdateRequest
-	var publicKey, secretKey string
-
-	// check access keys
-	if publicKey = cxt.GetHeader("Public-Key"); publicKey != c.Minio.Config.PublicKey {
-		err := errors.New("`Public-Key` is an invalid value")
-		appErr := view.NewAppError(dto.ERROR_CODE_CLIENT, err)
-		cxt.JSON(http.StatusOK, gin.H{"error": appErr})
-		return
-	}
-	if secretKey = cxt.GetHeader("Secret-Key"); secretKey != c.Minio.Config.SecretKey {
-		err := errors.New("`Secret-Key` is an invalid value")
-		appErr := view.NewAppError(dto.ERROR_CODE_CLIENT, err)
-		cxt.JSON(http.StatusOK, gin.H{"error": appErr})
-		return
-	}
 
 	if err := cxt.BindJSON(&request); err != nil {
 		log.Error(err)
