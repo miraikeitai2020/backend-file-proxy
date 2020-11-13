@@ -1,6 +1,11 @@
 package config
 
-import "github.com/kelseyhightower/envconfig"
+import (
+	"encoding/json"
+	"io/ioutil"
+
+	"github.com/kelseyhightower/envconfig"
+)
 
 const nullStr = ""
 
@@ -18,4 +23,17 @@ func MinioConnParams() (string, string, string, error) {
 		return nullStr, nullStr, nullStr, err
 	}
 	return c.URL, c.PublicKey, c.SecretKey, nil
+}
+
+// MinioBucketList returns minio bucket list.
+func MinioBucketList() ([]string, error) {
+	var list []string
+	raw, err := ioutil.ReadFile("config/bucket.json")
+	if err != nil {
+		return list, err
+	}
+	if err := json.Unmarshal(raw, &list); err != nil {
+		return list, err
+	}
+	return list, nil
 }
