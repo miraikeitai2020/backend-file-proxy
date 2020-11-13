@@ -1,14 +1,31 @@
 package minio
 
 import (
+	"context"
+	"fmt"
+	"os"
+
 	"github.com/minio/minio-go"
 	"github.com/minio/minio-go/pkg/credentials"
 	"github.com/miraikeitai2020/backend-file-proxy/config"
+	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/service/log"
 )
+
+var BucketList []string
+
+func init() {
+	var err error
+	BucketList, err = config.MinioBucketList()
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+}
 
 // Minio packs repositories
 type Minio struct {
 	Config  minioConfig
+	Client  *minio.Client
 	Buckets Repositories
 }
 
@@ -50,6 +67,7 @@ func New() (*Minio, error) {
 
 	return &Minio{
 		Config:  minioConfig{url, pk, sk},
+		Client:  client,
 		Buckets: Repositories{detour},
 	}, nil
 }
@@ -69,4 +87,25 @@ func (m *Minio) UpdateConfig(url, pk, sk string) *Minio {
 	m.Config = minioConfig{url, pk, sk}
 
 	return m
+}
+
+// CreateBucket create bucket in minio
+func (m *Minio) CreateBucket(bucket string) error {
+	cxt := context.Background()
+	if err := m.Client.MakeBucket(cxt, bucket, minio.MakeBucketOptions{}); err != nil {
+		exists, errBucketExists := m.Client.BucketExists(cxt, bucket)
+		if errBucketExists != nil {
+			return errBucketExists
+		}
+		if exists {
+			msg := fmt.Sprintf("%s is already exists", bucket)
+			log.Info(msg)
+			return nil
+		}
+		return err
+	}
+
+	msg := fmt.Sprintf("Successfully created %s", bucket)
+	log.Info(msg)
+	return nil
 }
