@@ -20,9 +20,10 @@ func router(ctrl controller.Controllers) *gin.Engine {
 	})
 	// controlle client config resource
 	router.PUT("/minio/config/update", ctrl.Minio().ConfigUpdateHandler)
+	router.PUT("/minio/init", ctrl.Minio().InitMinioHandler)
 	// controlle file resource
-	router.GET("/image/read/:id", ctrl.Minio().ReadImageHandler)
-	router.POST("/image/create", ctrl.Minio().CreateImageHandler)
+	router.GET("/image/detour/read/:id", ctrl.Minio().ReadDetourImageHandler)
+	router.POST("/image/detour/create", ctrl.Minio().CreateDetourImageHandler)
 	return router
 }
 
