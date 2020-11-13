@@ -15,22 +15,23 @@ import (
 	"github.com/miraikeitai2020/backend-file-proxy/pkg/view"
 )
 
-// FileController manages the file resource
-type FileController interface {
-	ReadImageHandler(*gin.Context)
-	CreateImageHandler(*gin.Context)
+// MinioController manages the file resource
+type MinioController interface {
+	ReadDetourImageHandler(*gin.Context)
+	CreateDetourImageHandler(*gin.Context)
 	ConfigUpdateHandler(*gin.Context)
+	InitMinioHandler(*gin.Context)
 }
-type fileController struct {
+type minioController struct {
 	Minio *minio.Minio
 }
 
 // Minio returns file resolver
-func (c *Controllers) Minio() FileController {
-	return &fileController{Minio: c.minio}
+func (c *Controllers) Minio() MinioController {
+	return &minioController{Minio: c.minio}
 }
 
-func (c *fileController) ReadImageHandler(cxt *gin.Context) {
+func (c *minioController) ReadDetourImageHandler(cxt *gin.Context) {
 	fileName := cxt.Param("id") + ".jpg"
 
 	object, size, err := c.Minio.Buckets.Detour.Get(fileName)
@@ -62,7 +63,7 @@ func (c *fileController) ReadImageHandler(cxt *gin.Context) {
 	}
 }
 
-func (c *fileController) CreateImageHandler(cxt *gin.Context) {
+func (c *minioController) CreateDetourImageHandler(cxt *gin.Context) {
 	var request dto.CreateImageRequest
 
 	if err := cxt.BindJSON(&request); err != nil {
@@ -111,7 +112,7 @@ func (c *fileController) CreateImageHandler(cxt *gin.Context) {
 	*/
 }
 
-func (c *fileController) ConfigUpdateHandler(cxt *gin.Context) {
+func (c *minioController) ConfigUpdateHandler(cxt *gin.Context) {
 	var request dto.ConfigUpdateRequest
 	if err := cxt.BindJSON(&request); err != nil {
 		log.Error(err)
@@ -140,4 +141,17 @@ func (c *fileController) ConfigUpdateHandler(cxt *gin.Context) {
 	c.Minio.UpdateConfig(request.URL, request.PublicKey, request.SecretKey)
 
 	cxt.JSON(http.StatusOK, gin.H{"minioConfig": c.Minio.Config})
+}
+
+func (c *minioController) InitMinioHandler(cxt *gin.Context) {
+	// create new bucket
+	for _, bucket := range minio.BucketList {
+		if err := c.Minio.CreateBucket(bucket); err != nil {
+			appErr := view.NewAppError(dto.ERROR_CODE_INTERNAL, err)
+			cxt.JSON(http.StatusOK, gin.H{"error": appErr})
+			return
+		}
+	}
+
+	cxt.JSON(http.StatusOK, gin.H{"bucketList": minio.BucketList})
 }
