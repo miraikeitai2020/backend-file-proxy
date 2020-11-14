@@ -13,7 +13,7 @@ SEC_KEY=$(MINIO_SECRET_DEFAULT_KEY)
 all:
 	$(GO_RUN) scripts/keys/keyGen.go
 build:
-	$(GO_BUILD)
+	$(GO_BUILD) cmd/main.go
 docker:
 	$(DOCKER_CMD) ./ -t miraikeitai2020/file-proxy:1.0.0
 test:
