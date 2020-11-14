@@ -148,8 +148,8 @@ func (c *minioController) InitMinioHandler(cxt *gin.Context) {
 	var publicKey, secretKey string
 
 	// check access keys
-	if publicKey = cxt.GetHeader("Public-Key"); publicKey != c.Minio.Config.PublicKey {
-		err := errors.New("`Public-Key` is an invalid value")
+	if publicKey = cxt.GetHeader("Access-Key"); publicKey != c.Minio.Config.PublicKey {
+		err := errors.New("`Access-Key` is an invalid value")
 		appErr := view.NewAppError(dto.ERROR_CODE_CLIENT, err)
 		cxt.JSON(http.StatusOK, gin.H{"error": appErr})
 		return

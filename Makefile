@@ -8,7 +8,9 @@ PUB_KEY=$(MINIO_ACCESS_DEFAULT_KEY)
 SEC_KEY=$(MINIO_SECRET_DEFAULT_KEY)
 
 all:
-	$(GO_CMD) scripts/keyGen.go
+	$(GO_CMD) scripts/keys/keyGen.go
+test:
+	$(GO_CMD) scripts/postObject.go
 minio-run:
 	sh scripts/launch_minio.sh $(PUB_KEY) $(SEC_KEY)
 minio-down:
