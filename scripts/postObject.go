@@ -13,18 +13,23 @@ import (
 	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/dto"
 )
 
-func encode() string {
+func encode() (string, error) {
 
-	file, _ := os.Open("asset/logo.jpg")
+	file, err := os.Open("asset/logo.jpg")
+	if err != nil {
+		return "", nil
+	}
 	defer file.Close()
 
-	fi, _ := file.Stat() //FileInfo interface
-	size := fi.Size()    //ファイルサイズ
+	fileInfo, err := file.Stat() //FileInfo interface
+	if err != nil {
+		return "", err
+	}
 
-	data := make([]byte, size)
+	data := make([]byte, fileInfo.Size())
 	file.Read(data)
 
-	return base64.StdEncoding.EncodeToString(data)
+	return base64.StdEncoding.EncodeToString(data), nil
 }
 
 func request(info dto.CreateImageRequest) ([]byte, error) {
@@ -34,7 +39,7 @@ func request(info dto.CreateImageRequest) ([]byte, error) {
 	}
 	request, err := http.NewRequest(
 		"POST",
-		"http://localhost:8080/image/create",
+		"http://localhost:8080/image/detour/create",
 		bytes.NewBuffer(body),
 	)
 	if err != nil {
@@ -50,14 +55,16 @@ func request(info dto.CreateImageRequest) ([]byte, error) {
 }
 
 func main() {
-	image := encode()
+	image, err := encode()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	info := dto.CreateImageRequest{"logo", image}
 
 	body, err := request(info)
 	if err != nil {
 		log.Fatal(body)
-		return
 	}
 
 	fmt.Println(string(body))
