@@ -83,6 +83,7 @@ func (m *Minio) UpdateConfig(url, pk, sk string) *Minio {
 	}
 
 	detour := newDetourClient(client)
+	m.Client = client
 	m.Buckets = Repositories{detour}
 	m.Config = minioConfig{url, pk, sk}
 
