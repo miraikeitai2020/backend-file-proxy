@@ -15,7 +15,11 @@ all:
 build:
 	$(GO_BUILD) cmd/main.go
 docker:
-	$(DOCKER_CMD) ./ -t miraikeitai2020/file-proxy:1.0.0
+	$(DOCKER_CMD) build ./ -t miraikeitai2020/file-proxy:1.0.0
+	$(DOCKER_CMD) run -d -p 8080:8080 \
+		--name file-proxy \
+		--rm \
+		miraikeitai2020/file-proxy:1.0.0
 test:
 	$(GO_RUN) scripts/postObject.go
 minio-run:
