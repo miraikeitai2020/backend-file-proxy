@@ -104,12 +104,10 @@ func (c *minioController) CreateDetourImageHandler(cxt *gin.Context) {
 
 	info := view.NewObjectInfo(request.ID, size)
 	cxt.JSON(http.StatusOK, gin.H{"objectInfo": info})
-	/*
-		if err := os.Remove(fileName); err != nil {
-			log.Error(err)
-			return
-		}
-	*/
+	if err := os.Remove(fileName); err != nil {
+		log.Error(err)
+		return
+	}
 }
 
 func (c *minioController) ConfigUpdateHandler(cxt *gin.Context) {
