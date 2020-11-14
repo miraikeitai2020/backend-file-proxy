@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/minio/minio-go"
-	"github.com/minio/minio-go/pkg/credentials"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/miraikeitai2020/backend-file-proxy/config"
 	"github.com/miraikeitai2020/backend-file-proxy/pkg/model/service/log"
 )
